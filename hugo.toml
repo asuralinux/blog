@@ -27,17 +27,17 @@ theme = "paper"
 [menu]
 [[menu.main]]
   name = 'Posts'
-  pageRef = '/posts'
+  url = '/posts'
 
 [[menu.main]]
   name = 'Categories'
-  pageRef = '/categories'
+  url = '/categories'
   parent = 'Posts'
   weight = 1
   
 [[menu.main]]
   name = 'Tags'
-  pageRef = '/tags'
+  url = '/tags'
   parent = 'Posts'
   weight = 2
 
