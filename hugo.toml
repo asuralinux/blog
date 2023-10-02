@@ -29,18 +29,6 @@ theme = "paper"
   name = 'Posts'
   url = '/posts'
 
-[[menu.main]]
-  name = 'Categories'
-  url = '/categories'
-  parent = 'Posts'
-  weight = 1
-  
-[[menu.main]]
-  name = 'Tags'
-  url = '/tags'
-  parent = 'Posts'
-  weight = 2
-
 # Define taxonomies
 [taxonomies]
   category = "categories"
