@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Project Meta on Asura Linux Project</title>
+    <link>https://blog.asuralinux.org/categories/project-meta/</link>
+    <description>Recent content in Project Meta on Asura Linux Project</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 01 Oct 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://blog.asuralinux.org/categories/project-meta/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Hello World</title>
+      <link>https://blog.asuralinux.org/2023/10/hello-world/</link>
+      <pubDate>Sun, 01 Oct 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.asuralinux.org/2023/10/hello-world/</guid>
+      <description>Hello there! Welcome to the Asura Linux Project. This is the first of hopefully many posts in the fresh new Asura Linux blog. It almost smells like fresh paint and a just-mowed lawn here.
+I recently started Asura Linux as a new Open Source project to explore the possibilities of building modern Linux systems with emerging foundational userspace technologies and concepts—ultimately guided by user experience. In simpler words, I want to experiment with different ways of building and running Linux systems.</description>
+    </item>
+    
+  </channel>
+</rss>
