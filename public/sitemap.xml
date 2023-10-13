@@ -5,9 +5,6 @@
     <loc>https://blog.asuralinux.org/categories/announcement/</loc>
     <lastmod>2023-10-01T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://blog.asuralinux.org/</loc>
-    <lastmod>2023-10-01T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://blog.asuralinux.org/categories/</loc>
     <lastmod>2023-10-01T00:00:00+00:00</lastmod>
   </url><url>
@@ -33,6 +30,9 @@
     <lastmod>2023-10-01T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://blog.asuralinux.org/tags/</loc>
+    <lastmod>2023-10-01T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://blog.asuralinux.org/</loc>
     <lastmod>2023-10-01T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://blog.asuralinux.org/categories/update/</loc>

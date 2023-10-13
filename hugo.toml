@@ -1,6 +1,6 @@
 baseURL = 'https://blog.asuralinux.org/'
 languageCode = 'en-us'
-title = 'Asura Linux Project'
+title = 'The Asura Linux Blog'
 
 theme = "paper"
 
@@ -14,7 +14,7 @@ theme = "paper"
   rss = true
 
   # home page profile
-  name = 'Asura Linux Blog'
+  name = 'The Asura Linux Blog'
   bio = 'Updates from the Asura Linux Project'
 
   # misc

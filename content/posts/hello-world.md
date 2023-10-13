@@ -77,6 +77,7 @@ There are some aspirational characteristics planned for the Fedora Asura Remix. 
 - System integrity verification (e.g., dm-verity)
 - Diverse application channels (e.g., Flatpaks, OCI Containers, etc.)
 - Secure boot (if achievable under meaningful conditions)
+
 However, it should be noted that any of these can change over time.
 
 ## Would there be a version without systemd?
