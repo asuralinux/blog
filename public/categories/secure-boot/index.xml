@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Secure Boot on The Asura Linux Blog</title>
+    <link>https://blog.asuralinux.org/categories/secure-boot/</link>
+    <description>Recent content in Secure Boot on The Asura Linux Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 21 Oct 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://blog.asuralinux.org/categories/secure-boot/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Understanding the Linux Boot Sequence</title>
+      <link>https://blog.asuralinux.org/2023/10/understanding-the-linux-boot-sequence/</link>
+      <pubDate>Sat, 21 Oct 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.asuralinux.org/2023/10/understanding-the-linux-boot-sequence/</guid>
+      <description>In my previous post on the Asura Linux blog, I introduced Asura Linux as an Open Source project to experiment with different ways of building and running modern general-purpose Linux systems—and to share what we learn along the way. I explained why the Asura Linux Project exists and what I was thinking about the immediate future. If you haven&amp;rsquo;t seen it, please have a look.
+In my excitement about introducing the project, I promised to publish the second blog post about the Linux boot process shortly.</description>
+    </item>
+    
+  </channel>
+</rss>

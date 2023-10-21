@@ -1,0 +1,622 @@
+<!doctype html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html
+  class="not-ready lg:text-base"
+  style="--bg: #faf8f1"
+  lang="en-us"
+>
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, shrink-to-fit=no"
+  />
+
+  
+  <title>Understanding the Linux Boot Sequence - The Asura Linux Blog</title>
+
+  
+  <meta name="theme-color" />
+
+  
+  
+  
+  
+  <meta name="description" content="In my previous post on the Asura Linux blog, I introduced Asura Linux as an Open Source project to experiment with different ways of building and running modern general-purpose Linux systems—and to share what we learn along the way. I explained why the Asura Linux Project exists and what I was thinking about the immediate future. If you haven&rsquo;t seen it, please have a look.
+In my excitement about introducing the project, I promised to publish the second blog post about the Linux boot process shortly." />
+  <meta name="author" content="Gaveen Prabhasara" />
+  
+
+  
+  
+  
+  
+  
+  
+  <link rel="preload stylesheet" as="style" href="https://blog.asuralinux.org/main.min.css" />
+
+  
+  
+  
+  
+  
+  <link rel="preload" as="image" href="https://blog.asuralinux.org/theme.svg" />
+
+  
+  
+  
+  
+  
+
+  
+  
+  <link rel="preload" as="image" href="https://blog.asuralinux.org/github.svg" />
+  
+  <link rel="preload" as="image" href="https://blog.asuralinux.org/mastodon.svg" />
+  
+  <link rel="preload" as="image" href="https://blog.asuralinux.org/rss.svg" />
+  
+  
+
+  
+  
+  <script
+    defer
+    src="https://blog.asuralinux.org/highlight.min.js"
+    onload="hljs.initHighlightingOnLoad();"
+  ></script>
+  
+
+  
+  
+  
+  <link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex@0.16.7/dist/katex.min.css"
+  integrity="sha384-3UiQGuEI4TTMaFmGIZumfRPtfKQ3trwQE2JgosJxCnGmQpL/lJdjpcHkaaFwHlcI"
+  crossorigin="anonymous"
+/>
+<script
+  defer
+  src="https://cdn.jsdelivr.net/npm/katex@0.16.7/dist/katex.min.js"
+  integrity="sha384-G0zcxDFp5LWZtDuRMnBkk3EphCK1lhEf4UEyEM693ka574TZGwo4IWwS6QLzM/2t"
+  crossorigin="anonymous"
+></script>
+<script
+  defer
+  src="https://cdn.jsdelivr.net/npm/katex@0.16.7/dist/contrib/auto-render.min.js"
+  integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05"
+  crossorigin="anonymous"
+></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () =>
+        renderMathInElement(document.body, {
+          
+          
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+          ],
+          
+          throwOnError : false
+        })
+    );
+</script>
+
+  
+  
+  
+
+  
+  <link rel="icon" href="https://blog.asuralinux.org/favicon.ico" />
+  <link rel="apple-touch-icon" href="https://blog.asuralinux.org/apple-touch-icon.png" />
+
+  
+  <meta name="generator" content="Hugo 0.119.0">
+
+  
+  
+  
+  
+  
+  <meta itemprop="name" content="Understanding the Linux Boot Sequence">
+<meta itemprop="description" content="In my previous post on the Asura Linux blog, I introduced Asura Linux as an Open Source project to experiment with different ways of building and running modern general-purpose Linux systems—and to share what we learn along the way. I explained why the Asura Linux Project exists and what I was thinking about the immediate future. If you haven&rsquo;t seen it, please have a look.
+In my excitement about introducing the project, I promised to publish the second blog post about the Linux boot process shortly."><meta itemprop="datePublished" content="2023-10-21T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2023-10-21T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2397">
+<meta itemprop="keywords" content="boot,uefi,bios,uki," />
+  
+  <meta property="og:title" content="Understanding the Linux Boot Sequence" />
+<meta property="og:description" content="In my previous post on the Asura Linux blog, I introduced Asura Linux as an Open Source project to experiment with different ways of building and running modern general-purpose Linux systems—and to share what we learn along the way. I explained why the Asura Linux Project exists and what I was thinking about the immediate future. If you haven&rsquo;t seen it, please have a look.
+In my excitement about introducing the project, I promised to publish the second blog post about the Linux boot process shortly." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://blog.asuralinux.org/2023/10/understanding-the-linux-boot-sequence/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-10-21T00:00:00+00:00" />
+<meta property="article:modified_time" content="2023-10-21T00:00:00+00:00" />
+
+  
+  <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Understanding the Linux Boot Sequence"/>
+<meta name="twitter:description" content="In my previous post on the Asura Linux blog, I introduced Asura Linux as an Open Source project to experiment with different ways of building and running modern general-purpose Linux systems—and to share what we learn along the way. I explained why the Asura Linux Project exists and what I was thinking about the immediate future. If you haven&rsquo;t seen it, please have a look.
+In my excitement about introducing the project, I promised to publish the second blog post about the Linux boot process shortly."/>
+
+  
+  
+  
+  <link rel="canonical" href="https://blog.asuralinux.org/2023/10/understanding-the-linux-boot-sequence/" />
+  
+  
+</head>
+
+  <body class="text-black duration-200 ease-out dark:text-white">
+    <header class="mx-auto flex h-[4.5rem] max-w-3xl px-8 lg:justify-center">
+  <div class="relative z-50 mr-auto flex items-center">
+    <a
+      class="-translate-x-[1px] -translate-y-[1px] text-2xl font-semibold"
+      href="https://blog.asuralinux.org/"
+      >The Asura Linux Blog</a
+    >
+    <div
+      class="btn-dark text-[0] ml-4 h-6 w-6 shrink-0 cursor-pointer [background:url(./theme.svg)_left_center/cover_no-repeat] dark:invert dark:[background-position:right]"
+      role="button"
+      aria-label="Dark"
+    ></div>
+  </div>
+
+  <div
+    class="btn-menu relative z-50 -mr-8 flex h-[4.5rem] w-[5rem] shrink-0 cursor-pointer flex-col items-center justify-center gap-2.5 lg:hidden"
+    role="button"
+    aria-label="Menu"
+  ></div>
+
+  
+
+  <script>
+    
+    const htmlClass = document.documentElement.classList;
+    setTimeout(() => {
+      htmlClass.remove('not-ready');
+    }, 10);
+
+    
+    const btnMenu = document.querySelector('.btn-menu');
+    btnMenu.addEventListener('click', () => {
+      htmlClass.toggle('open');
+    });
+
+    
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    const lightBg = '#faf8f1'.replace(/"/g, '');
+    const setDark = (isDark) => {
+      metaTheme.setAttribute('content', isDark ? '#000' : lightBg);
+      htmlClass[isDark ? 'add' : 'remove']('dark');
+      localStorage.setItem('dark', isDark);
+    };
+
+    
+    const darkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+    if (htmlClass.contains('dark')) {
+      setDark(true);
+    } else {
+      const darkVal = localStorage.getItem('dark');
+      setDark(darkVal ? darkVal === 'true' : darkScheme.matches);
+    }
+
+    
+    darkScheme.addEventListener('change', (event) => {
+      setDark(event.matches);
+    });
+
+    
+    const btnDark = document.querySelector('.btn-dark');
+    btnDark.addEventListener('click', () => {
+      setDark(localStorage.getItem('dark') !== 'true');
+    });
+  </script>
+
+  <div
+    class="nav-wrapper fixed inset-x-0 top-full z-40 flex h-full select-none flex-col justify-center pb-16 duration-200 dark:bg-black lg:static lg:h-auto lg:flex-row lg:!bg-transparent lg:pb-0 lg:transition-none"
+  >
+    
+    
+    <nav class="lg:ml-12 lg:flex lg:flex-row lg:items-center lg:space-x-6">
+      
+      <a
+        class="block text-center text-2xl leading-[5rem] lg:text-base lg:font-normal"
+        href="/posts"
+        >Posts</a
+      >
+      
+    </nav>
+    
+
+    
+    <nav
+      class="mt-12 flex justify-center space-x-10 dark:invert lg:ml-12 lg:mt-0 lg:items-center lg:space-x-6"
+    >
+      
+      <a
+        class="h-8 w-8 text-[0] [background:var(--url)_center_center/cover_no-repeat] lg:h-6 lg:w-6"
+        style="--url: url(./github.svg)"
+        href="https://github.com/asuralinux"
+        target="_blank"
+        rel="me"
+      >
+        github
+      </a>
+      
+      <a
+        class="h-8 w-8 text-[0] [background:var(--url)_center_center/cover_no-repeat] lg:h-6 lg:w-6"
+        style="--url: url(./mastodon.svg)"
+        href="https://fosstodon.org/@asuralinux"
+        target="_blank"
+        rel="me"
+      >
+        mastodon
+      </a>
+      
+      <a
+        class="h-8 w-8 text-[0] [background:var(--url)_center_center/cover_no-repeat] lg:h-6 lg:w-6"
+        style="--url: url(./rss.svg)"
+        href="https://blog.asuralinux.org/index.xml"
+        target="_blank"
+        rel="alternate"
+      >
+        rss
+      </a>
+      
+    </nav>
+    
+  </div>
+</header>
+
+
+    <main
+      class="prose prose-neutral relative mx-auto min-h-[calc(100%-9rem)] max-w-3xl px-8 pb-16 pt-12 dark:prose-invert"
+    >
+      
+
+<article>
+  <header class="mb-16">
+    <h1 class="!my-0 pb-2.5">Understanding the Linux Boot Sequence</h1>
+
+    
+    <div class="text-sm antialiased opacity-60">
+      
+      <time>Oct 21, 2023</time>
+      
+      
+      
+      
+      <span class="mx-1">&middot;</span>
+      <span>Gaveen Prabhasara</span>
+      
+    </div>
+    
+  </header>
+
+  <section><p>In my previous post on the Asura Linux blog, I introduced Asura Linux as an Open Source project to experiment with different ways of building and running modern general-purpose Linux systems—and to share what we learn along the way. I explained why the Asura Linux Project exists and what I was thinking about the immediate future. If you haven&rsquo;t seen it, <a href="https://blog.asuralinux.org/2023/10/hello-world/">please have a look</a>.</p>
+<p>In my excitement about introducing the project, I promised to publish the second blog post about the Linux boot process shortly. If you are following <a href="https://hachyderm.io/@gaveen">me</a> (or <a href="https://fosstodon.org/@asuralinux">Asura Linux</a>) on the fediverse, you may have seen a couple of updates since then. In summary, I suffered from multiple back-to-back health issues related to a viral flu. Whenever I wasn&rsquo;t in bed, I still had to catch up with work, even though I was in no condition to work. Since I&rsquo;m finally feeling close enough to normal, let&rsquo;s begin without further ado.</p>
+<hr>
+<p>When I started using Linux, I didn&rsquo;t feel I grasped what was going on with my computer until I could make sense of the long swaths of text that flew by during the boot time. While most of the latter part of the boot sequence showed me the statuses of starting system services, I could see there were different stages to the boot sequence.</p>
+<p>The boot sequence is the first user experience (UX) when interacting with a computer. It starts by powering up the hardware, giving the firmware the control, which ultimately hands over the boot process to the software in the computer before a user can interact with their productive work. From both technical and UX perspectives, the boot sequence marks a good starting point to discuss running Linux.</p>
+<p>This post discusses the Linux boot sequence specifics under three scenarios: the past, present, and future. Therefore, let&rsquo;s start by understanding the overall generic process along with a few key concepts.</p>
+<h2 id="a-generic-boot-sequence">A Generic Boot Sequence</h2>
+<ol start="0">
+<li><strong>Power On</strong>
+<ul>
+<li>The computer motherboard and the rest of the essential electronics are powered up.</li>
+</ul>
+</li>
+<li><strong>Firmware Initialization</strong>
+<ul>
+<li>The firmware (usually stored in a chip) starts running.</li>
+<li>The firmware makes sure the essential hardware components are functional.
+<ul>
+<li>If there are errors, they are indicated (e.g., via sounds, lights, and messages)</li>
+</ul>
+</li>
+<li>The firmware then tries to read a bootable device based on the configured boot order.</li>
+</ul>
+</li>
+<li><strong>Reading the Boot Device</strong>
+<ul>
+<li>A boot device (usually a specific section) is read.</li>
+<li>This location contains either a bootloader or further instructions to locate one.</li>
+</ul>
+</li>
+<li><strong>Bootloader</strong>
+<ul>
+<li>A bootloader is a program configured to know how to locate and load an Operating System (OS).</li>
+<li>Sometimes, a bootloader can point to another bootloader instead of an OS.</li>
+</ul>
+</li>
+<li><strong>Loading the Operating System</strong>
+<ul>
+<li>The final-stage bootloader program loads the essential parts of the OS into the memory, adhering to any special instructions given.</li>
+<li>It also locates and makes the file systems available for the OS.</li>
+</ul>
+</li>
+<li><strong>Operating System Initialization</strong>
+<ul>
+<li>The OS usually hands the rest of the boot sequence to a supervisor program that knows how to start and manage software processes.</li>
+<li>The supervisor program then starts/stops systems and application services as configured.</li>
+<li>Finally, the user sees a login prompt when the login service is ready.</li>
+</ul>
+</li>
+</ol>
+<p>The boot sequence can be considered done when the &lsquo;init&rsquo; system completes starting/stopping necessary background services and finally provides the user with a login prompt.</p>
+<p>Usually, the essential parts of an OS loaded in step 4 include the following.</p>
+<ul>
+<li>Kernel</li>
+<li>Initial RAM File System</li>
+</ul>
+<p>The <em>Kernel</em> is the core part of the OS that communicates with the hardware and provides management functions of resources such as tasks, I/O, and memory. Therefore, the kernel is a bare minimum requirement to boot a Linux system. For the convenience of the boot process, it is usually included in a compressed image file that knows how to uncompress and load itself into the system memory. The kernel image file usually carries a name starting with <code>vmlinuz-</code> and is located in the <code>/boot</code> directory.</p>
+<p>The <em>Initial RAM File System</em> (<code>initramfs</code> or <code>initrd</code>) is an archive file that contains the minimum operating environment necessary to successfully mount the root file system, and further boot instructions. It is also located usually in the <code>/boot</code> directory.</p>
+<p>Next, let&rsquo;s dive into the three scenarios we mentioned above now that we know the stages of the Linux boot sequence. We&rsquo;ll skim over the generic stages and fill in the details relevant to the specifics of each scenario.</p>
+<hr>
+<h2 id="boot-process-in-the-past-bios-sysv-init">Boot Process in the Past (BIOS, SysV Init)</h2>
+<ol>
+<li><strong>Firmware Initialization (BIOS)</strong>
+<ul>
+<li>Most older computers (and even current ones for compatibility reasons) support a type of firmware known as BIOS.
+<ul>
+<li>BIOS stands for Basic Input/Output System.</li>
+</ul>
+</li>
+<li>The BIOS firmware has a self-diagnostic state known as Power-on Self-test (POST).
+<ul>
+<li>POST is responsible for verifying the integrity of BIOS and initializing a few essential system components such as CPU, RAM, and I/O controllers.</li>
+</ul>
+</li>
+<li>After initialization, BIOS looks for a bootable device based on the boot order specified in its settings (e.g., floppy disk, hard disk, CD-ROM).</li>
+</ul>
+</li>
+<li><strong>Reading the Boot Device</strong>
+<ul>
+<li>The BIOS-based systems usually support a disk partitioning scheme known as MBR.</li>
+<li>A bootable device is formatted to have a Master Boot Record (MBR), the first 512 bytes of a drive reserved for specific information such as the Partition Table of the particular disk and a few boot instructions.</li>
+<li>The limited space in the Master Boot Record (MBR) is usually insufficient to hold all the instructions to locate and boot an operating system. Therefore, the burden of continuing the boot process is passed to a secondary-stage bootloader stored elsewhere on a disk.</li>
+</ul>
+</li>
+<li><strong>Bootloader</strong>
+<ul>
+<li>Many bootloader programs such as GRUB/GRUB2 and LILO can boot a BIOS-based Linux system.</li>
+<li>When the final-stage bootloader is ready, its configuration looks for a few specific files on the disk needed to boot an operating system.</li>
+</ul>
+</li>
+<li><strong>Loading the Operating System</strong>
+<ul>
+<li>The kernel and the initial RAM disk images are loaded into the memory.</li>
+<li>The tools and the environment included in the initial RAM file system are then used to mount the root file system of the computer.</li>
+</ul>
+</li>
+<li><strong>Operating System Initialization</strong>
+<ul>
+<li>Many Unix-like systems historically support a version of SysV init (and later a spiritual successor named Upstart), configurable using init scripts.</li>
+<li>The init system manages the initialization of user-space services, mounting other file systems, setting up networking, and more.</li>
+<li>SysV init also had a concept of run levels that were presets of configurations for different cases (e.g., single-user mode, multi-user mode, multi-user mode with networking, multi-user mode with networking and GUI, etc.).</li>
+<li>Finally, the user sees a login prompt when the login service is ready.</li>
+</ul>
+</li>
+</ol>
+<p>A setup like this continues to work, still supported by many current Linux distros and computer hardware. However, as expected from an area of technology as active as general-purpose computing, there are multiple new alternatives with broader features.</p>
+<p>One such alternative is <code>UEFI</code>. It&rsquo;s a more modern alternative to BIOS developed by an industry consortium. UEFI is increasingly becoming the preferred firmware mode, even when BIOS is available as a fallback.</p>
+<p>On the Linux side, <code>systemd</code> has been mass adopted as the default init system by most Linux distributions roughly over the past decade.</p>
+<hr>
+<h2 id="boot-process-in-the-present-uefi-systemd">Boot Process in the Present (UEFI, systemd)</h2>
+<ol>
+<li><strong>Firmware Initialization (UEFI)</strong>
+<ul>
+<li>Most newer computers support a type of firmware known as UEFI.
+<ul>
+<li>UEFI stands for Unified Extensible Firmware Interface.</li>
+</ul>
+</li>
+<li>Instead of a POST stage, UEFI has what is known as the &ldquo;SEC&rdquo; (Security) phase and the &ldquo;PEI&rdquo; (Pre-EFI Initialization) phase. Once these two stages are completed, the boot process is handed over to the DXE (Driver eXecution Environment) phase and BDS (Boot Device Selection) phase, which makes sure the system&rsquo;s hardware is in a functional state and attempts to locate and boot from the boot device.</li>
+<li>UEFI looks for a valid EFI system partition based on the boot order to boot from.</li>
+</ul>
+</li>
+<li><strong>Reading the Boot Device</strong>
+<ul>
+<li>UEFI-based systems usually support a disk partitioning scheme known as GUID Partition Table (GPT). However, they also support MBR partitioned disks via the Compatibility Support Module (CSM).</li>
+<li>The EFI System Partition (ESP) is a small FAT32 partition with a specific directory structure that contains executable EFI binaries (e.g., bootloader), boot configuration, UEFI drivers, and kernel images. The EFI partition can be shared by multiple operating systems when dual-booting.</li>
+<li>The bootloader for a UEFI system is usually an executable EFI program signed by the respective OS vendor. This is where Linux diverges from the other OSs.
+<ul>
+<li>Unlike Windows or macOS, Linux doesn&rsquo;t have a single vendor. This means Linux distributions may have different signing processes for the components used during the boot. To overcome this ideological difference, the Linux community came up with what&rsquo;s known as a &lsquo;shim&rsquo;.</li>
+<li>The <code>shim</code> is a pre-compiled, pre-signed EFI program that Linux distributions can use to handle the Secure Boot process. Instead of loading the operating system, the shim loads another bootloader (e.g., GRUB2) preferred by the distro.</li>
+<li>Instead of relying on the UEFI firmware to validate GRUB2&rsquo;s signature, the shim verifies it using the trusted Machine Owner Keys (MOKs) generated during the installation. Then, the shim executes the signed bootloader (e.g., GRUB2) executable.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Bootloader</strong>
+<ul>
+<li>GRUB2 bootloader then loads the Linux kernel.</li>
+<li>As with the bootloader, the kernel (and its modules) must also be signed for the Secure Boot to work. The shim can verify the kernel&rsquo;s signature before allowing it to execute, using its list of Machine Owner Keys (MOKs).</li>
+</ul>
+</li>
+<li><strong>Loading the Operating System</strong>
+<ul>
+<li>The kernel and the initial RAM disk images are loaded into the memory.</li>
+<li>The tools and the environment included in the initial RAM file system are then used to mount the root file system of the computer.</li>
+</ul>
+</li>
+<li><strong>Operating System Initialization</strong>
+<ul>
+<li>The first userspace<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> program (i.e., <code>systemd</code>) is started once the root file system is mounted.</li>
+<li><code>systemd</code> service takes over, initializing userspace services and eventually leading to a login prompt or graphical interface.</li>
+<li>Finally, the user sees a login prompt when the login service is ready.</li>
+</ul>
+</li>
+</ol>
+<p>While this setup is an improvement over the past scenario, there&rsquo;s still room for improvement. For example, most Linux distros have to rely on the <code>shim</code> for Secure Boot, which then has to cryptographically verify several things using keys generated locally on each computer.</p>
+<hr>
+<p>Now that we are caught up to the current status of the Linux process, I want to draw you a picture of a conceptual future boot process. However, we need to understand a few additional concepts to get there.</p>
+<h3 id="unified-kernel-image-uki">Unified Kernel Image (UKI)</h3>
+<p>In the previous scenarios, we discussed separate kernel and initramfs images. At the core of our future scenario is what is known as a <em>Unified Kernel Image</em> (<code>UKI</code>). A UKI is a Linux kernel image, an initramfs, and a few other optional components rolled into a single UEFI program that can be loaded by the UEFI firmware or a bootloader. Since a UKI contains everything needed to boot an OS, our boot sequence and the amount of cryptographic verification we need to do become simpler.</p>
+<h3 id="trusted-platform-module-tpm-and-platform-configuration-registers-pcrs">Trusted Platform Module (TPM) and Platform Configuration Registers (PCRs)</h3>
+<p>Another feature in most modern computers is the Trusted Platform Module (TPM) chip. It can either be a discrete or an integrated hardware component that&rsquo;s likely already included in your computer. The TPM provides a way to generate cryptographic keys, securely store secrets, and validate hardware and software states.</p>
+<p>The Platform Configuration Registers (PCRs) are a set of registers within the TPM chip. They can be used to store measurements (e.g., hash values) of software and hardware states, which can then be used to verify the system integrity. There are usually at least 24 PCRs owned by the firmware (i.e., UEFI). These PCRs remain sealed and can be unsealed under specific conditions during specific stages of the boot process to ensure a Secure Boot.</p>
+<h3 id="discoverable-partitions">Discoverable Partitions</h3>
+<p>If we start to go through our generic boot sequence, you might notice we still need to read the disks to locate our UKI. The Discoverable Partitions Specification (DPS)<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup> by the UAPI Group provides a mechanism to use the Universally Unique Identifiers (UUIDs) of a GPT-partitioned disk (or a disk image) to enable automatic discovery of the disk partitions and their intended mount points.</p>
+<p>In addition, a block-level verification mechanism such as <code>dm-verity</code> can be used to verify the integrity of the disk partitions/images during the boot process.</p>
+<h2 id="a-potential-future-boot-process">A Potential Future Boot Process</h2>
+<ol>
+<li><strong>Firmware Initialization (UEFI)</strong></li>
+<li><strong>Bootloading</strong>
+<ul>
+<li>The disk partitions are automatically discovered based on the GPT partition UUIDs.</li>
+<li>The EFI System Partition (ESP) is read, and the UKI is started to be loaded.</li>
+<li>The UKI signed by the respective Linux distro is verified and loaded.</li>
+<li>The root file system is discovered, integrity verified, and mounted.</li>
+</ul>
+</li>
+<li><strong>Operating System Initialization</strong>
+<ul>
+<li>The first userspace program (i.e., <code>systemd</code>) is started and takes over, initializing userspace services and eventually leading to a login prompt or graphical interface.</li>
+<li>Finally, the user sees a login prompt when the login service is ready.</li>
+</ul>
+</li>
+</ol>
+<p>I&rsquo;m sure you&rsquo;d agree this new scenario seems like an improvement over what we&rsquo;ve seen earlier. What we briefly talked about is mostly a hypothetical scenario. However, some distros such as GNOME OS and carbonOS have already started to implement parts of the specifications necessary to realize it.</p>
+<p>This scenario and much more beyond is detailed in the blog post &ldquo;<a href="https://0pointer.net/blog/brave-new-trusted-boot-world.html">Brave New Trusted Boot World</a>&rdquo; by Lennart Poettering. Subsequently, the points in his blog post have become part of the collaboration scope of the <a href="https://github.com/uapi-group">UAPI Group</a>.</p>
+<hr>
+<p>Initially, I wanted to include more details into our future scenario. For example, I wanted to discuss how the System Extensions (UAPI Group) specification enables powerful constructs for building Linux systems. Ultimately, I decided against further delaying an already delayed post. But I&rsquo;m sure we&rsquo;ll get into a detailed post about System and Configuration Extension somewhere down the line.</p>
+<p>I still haven&rsquo;t decided what the next post will be about. Since I&rsquo;m currently thinking about two topics, I think it might be one of them. These are:</p>
+<ul>
+<li>generating Unified Kernel Images (UKIs)</li>
+<li>alternative Privilege Escalation mechanisms (e.g., <code>sudo</code>)</li>
+</ul>
+<p>I won&rsquo;t go as far as to tempt the universe by indicating a timeline. But it shouldn&rsquo;t be too long. In the meantime, please message <a href="https://fosstodon.org/@asuralinux">on fediverse</a> or <a href="mailto:asuralinux@proton.me">by email</a> while I wonder if I should enable comments.</p>
+<div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p>For safety and efficiency, operating systems are designed to run user programs in a separate area (user-space) so they can&rsquo;t directly interfere with or crash the core system functions (system-space).&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2">
+<p><a href="https://uapi-group.org/specifications/specs/discoverable_partitions_specification/">The Discoverable Partitions Specification (DPS) - UAPI Group Specifications</a>&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
+</section>
+
+  
+  
+  <footer class="mt-12 flex flex-wrap">
+     
+    <a
+      class="mb-1.5 mr-1.5 rounded-lg bg-black/[3%] px-5 py-1.5 no-underline dark:bg-white/[8%]"
+      href="https://blog.asuralinux.org/tags/boot"
+      >boot</a
+    >
+     
+    <a
+      class="mb-1.5 mr-1.5 rounded-lg bg-black/[3%] px-5 py-1.5 no-underline dark:bg-white/[8%]"
+      href="https://blog.asuralinux.org/tags/uefi"
+      >uefi</a
+    >
+     
+    <a
+      class="mb-1.5 mr-1.5 rounded-lg bg-black/[3%] px-5 py-1.5 no-underline dark:bg-white/[8%]"
+      href="https://blog.asuralinux.org/tags/bios"
+      >bios</a
+    >
+     
+    <a
+      class="mb-1.5 mr-1.5 rounded-lg bg-black/[3%] px-5 py-1.5 no-underline dark:bg-white/[8%]"
+      href="https://blog.asuralinux.org/tags/uki"
+      >uki</a
+    >
+    
+  </footer>
+  
+
+  
+  
+  
+  
+  <nav class="mt-24 flex rounded-lg bg-black/[3%] text-lg dark:bg-white/[8%]">
+    
+    
+    <a
+      class="ml-auto flex w-1/2 items-center justify-end rounded-r-md p-6 pl-3 font-semibold no-underline hover:bg-black/[2%] dark:hover:bg-white/[3%]"
+      href="https://blog.asuralinux.org/2023/10/hello-world/"
+      ><span>Hello World</span><span class="ml-1.5">→</span></a
+    >
+    
+  </nav>
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+</article>
+
+
+    </main>
+
+    <footer
+  class="opaco mx-auto flex h-[4.5rem] max-w-3xl items-center px-8 text-[0.9em] opacity-60"
+>
+  <div class="mr-auto">
+    &copy; 2023
+    <a class="link" href="https://blog.asuralinux.org/">The Asura Linux Blog</a>
+  </div>
+  <a class="link mx-6" href="https://gohugo.io/" rel="noopener" target="_blank"
+    >Powered by Hugo️️</a
+  >️
+  <a
+    class="link"
+    href="https://github.com/nanxiaobei/hugo-paper"
+    rel="noopener"
+    target="_blank"
+    >✎ Paper</a
+  >
+</footer>
+
+  </body>
+</html>
